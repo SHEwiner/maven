@@ -406,8 +406,8 @@ public class DefaultModelValidator
                     validate20PluginVersion( "build.plugins.plugin.version", problems, p.getVersion(), p.getKey(), p,
                                              request );
 
-                    validateBoolean( "build.plugins.plugin.inherited", EMPTY, problems, errOn30, Version.V20, p.getInherited(),
-                                     p.getKey(), p );
+                    validateBoolean( "build.plugins.plugin.inherited", EMPTY, problems, errOn30, Version.V20,
+                                     p.getInherited(), p.getKey(), p );
 
                     validateBoolean( "build.plugins.plugin.extensions", EMPTY, problems, errOn30, Version.V20,
                                      p.getExtensions(), p.getKey(), p );
@@ -535,8 +535,8 @@ public class DefaultModelValidator
                         + StringUtils.defaultString( dependency.getVersion(), "(?)" );
                 }
 
-                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + "(groupId:artifactId:type:classifier)", null,
-                              "must be unique: " + key + " -> " + msg, dependency );
+                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + "(groupId:artifactId:type:classifier)",
+                              null, "must be unique: " + key + " -> " + msg, dependency );
             }
             else
             {
@@ -752,8 +752,8 @@ public class DefaultModelValidator
             validateStringNotEmpty( prefix, prefix2, "id", problems, Severity.ERROR, Version.V20, repository.getId(),
                                     null, repository );
 
-            validateStringNotEmpty( prefix, prefix2, "[" + repository.getId() + "].url", problems, Severity.ERROR, Version.V20,
-                                    repository.getUrl(), null, repository );
+            validateStringNotEmpty( prefix, prefix2, "[" + repository.getId() + "].url", problems, Severity.ERROR,
+                                    Version.V20, repository.getUrl(), null, repository );
 
             String key = repository.getId();
 
@@ -976,9 +976,9 @@ public class DefaultModelValidator
      * </ul>
      */
     @SuppressWarnings( "checkstyle:parameternumber" )
-    private boolean validateStringNotEmpty( String prefix, String prefix2, String fieldName, ModelProblemCollector problems,
-                                            Severity severity, Version version, String string, String sourceHint,
-                                            InputLocationTracker tracker )
+    private boolean validateStringNotEmpty( String prefix, String prefix2, String fieldName,
+                                            ModelProblemCollector problems, Severity severity, Version version,
+                                            String string, String sourceHint, InputLocationTracker tracker )
     {
         if ( !validateNotNull( prefix, prefix2, fieldName, problems, severity, version, string, sourceHint, tracker ) )
         {
@@ -1052,8 +1052,9 @@ public class DefaultModelValidator
      * </ul>
      */
     @SuppressWarnings( "checkstyle:parameternumber" )
-    private boolean validateNotNull( String prefix, String prefix2, String fieldName, ModelProblemCollector problems,
-                                     Severity severity, Version version, Object object, String sourceHint, InputLocationTracker tracker )
+    private boolean validateNotNull( String prefix, String prefix2, String fieldName,
+                                     ModelProblemCollector problems, Severity severity, Version version,
+                                     Object object, String sourceHint, InputLocationTracker tracker )
     {
         if ( object != null )
         {
