@@ -146,7 +146,7 @@ public class DefaultModelValidator
                 validateStringNotEmpty( "version", problems, Severity.FATAL, Version.V20, m.getVersion(), m );
             }
 
-            validate20RawDependencies( problems, m.getDependencies(), "dependencies.dependency", EMPTY, request );
+            validate20RawDependencies( problems, m.getDependencies(), "dependencies.dependency.", EMPTY, request );
 
             validate20RawDependenciesSelfReferencing( problems, m, m.getDependencies(), "dependencies.dependency",
                                                       request );
@@ -154,7 +154,7 @@ public class DefaultModelValidator
             if ( m.getDependencyManagement() != null )
             {
                 validate20RawDependencies( problems, m.getDependencyManagement().getDependencies(),
-                                           "dependencyManagement.dependencies.dependency", EMPTY, request );
+                                           "dependencyManagement.dependencies.dependency.", EMPTY, request );
             }
 
             validateRawRepositories( problems, m.getRepositories(), "repositories.repository.", EMPTY, request );
@@ -165,12 +165,12 @@ public class DefaultModelValidator
             Build build = m.getBuild();
             if ( build != null )
             {
-                validate20RawPlugins( problems, build.getPlugins(), "build.plugins.plugin", EMPTY, request );
+                validate20RawPlugins( problems, build.getPlugins(), "build.plugins.plugin.", EMPTY, request );
 
                 PluginManagement mgmt = build.getPluginManagement();
                 if ( mgmt != null )
                 {
-                    validate20RawPlugins( problems, mgmt.getPlugins(), "build.pluginManagement.plugins.plugin",
+                    validate20RawPlugins( problems, mgmt.getPlugins(), "build.pluginManagement.plugins.plugin.",
                                           EMPTY, request );
                 }
             }
@@ -190,30 +190,30 @@ public class DefaultModelValidator
                 validate30RawProfileActivation( problems, profile.getActivation(), profile.getId(),
                                                 prefix, "activation", request );
 
-                validate20RawDependencies( problems, profile.getDependencies(), prefix, "dependencies.dependency",
+                validate20RawDependencies( problems, profile.getDependencies(), prefix, "dependencies.dependency.",
                                            request );
 
                 if ( profile.getDependencyManagement() != null )
                 {
                     validate20RawDependencies( problems, profile.getDependencyManagement().getDependencies(),
-                                               prefix, "dependencyManagement.dependencies.dependency", request );
+                                               prefix, "dependencyManagement.dependencies.dependency.", request );
                 }
 
-                validateRawRepositories( problems, profile.getRepositories(), prefix, "repositories.repository",
+                validateRawRepositories( problems, profile.getRepositories(), prefix, "repositories.repository.",
                                          request );
 
                 validateRawRepositories( problems, profile.getPluginRepositories(),
-                                         prefix, "pluginRepositories.pluginRepository", request );
+                                         prefix, "pluginRepositories.pluginRepository.", request );
 
                 BuildBase buildBase = profile.getBuild();
                 if ( buildBase != null )
                 {
-                    validate20RawPlugins( problems, buildBase.getPlugins(), prefix, "plugins.plugin", request );
+                    validate20RawPlugins( problems, buildBase.getPlugins(), prefix, "plugins.plugin.", request );
 
                     PluginManagement mgmt = buildBase.getPluginManagement();
                     if ( mgmt != null )
                     {
-                        validate20RawPlugins( problems, mgmt.getPlugins(), prefix, "pluginManagement.plugins.plugin",
+                        validate20RawPlugins( problems, mgmt.getPlugins(), prefix, "pluginManagement.plugins.plugin.",
                                               request );
                     }
                 }
@@ -284,21 +284,21 @@ public class DefaultModelValidator
             if ( plugin.getGroupId() == null
                 || ( plugin.getGroupId() != null && plugin.getGroupId().trim().isEmpty() ) )
             {
-                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + ".(groupId:artifactId)", null,
+                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + "(groupId:artifactId)", null,
                               "groupId of a plugin must be defined. ", plugin );
             }
 
             if ( plugin.getArtifactId() == null
                 || ( plugin.getArtifactId() != null && plugin.getArtifactId().trim().isEmpty() ) )
             {
-                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + ".(groupId:artifactId)", null,
+                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + "(groupId:artifactId)", null,
                               "artifactId of a plugin must be defined. ", plugin );
             }
 
             // This will catch cases like <version></version> or <version/>
             if ( plugin.getVersion() != null && plugin.getVersion().trim().isEmpty() )
             {
-                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + ".(groupId:artifactId)", null,
+                addViolation( problems, Severity.FATAL, Version.V20, prefix + prefix2 + "(groupId:artifactId)", null,
                               "version of a plugin must be defined. ", plugin );
             }
 
@@ -308,7 +308,7 @@ public class DefaultModelValidator
 
             if ( existing != null )
             {
-                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + ".(groupId:artifactId)", null,
+                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + "(groupId:artifactId)", null,
                               "must be unique but found duplicate declaration of plugin " + key, plugin );
             }
             else
@@ -415,9 +415,9 @@ public class DefaultModelValidator
                     validate20EffectivePluginDependencies( problems, p, request );
                 }
 
-                validate20RawResources( problems, build.getResources(), "build.resources.resource", request );
+                validate20RawResources( problems, build.getResources(), "build.resources.resource.", request );
 
-                validate20RawResources( problems, build.getTestResources(), "build.testResources.testResource",
+                validate20RawResources( problems, build.getTestResources(), "build.testResources.testResource.",
                                         request );
             }
 
@@ -436,12 +436,12 @@ public class DefaultModelValidator
 
             for ( Repository repository : m.getRepositories() )
             {
-                validate20EffectiveRepository( problems, repository, "repositories.repository", request );
+                validate20EffectiveRepository( problems, repository, "repositories.repository.", request );
             }
 
             for ( Repository repository : m.getPluginRepositories() )
             {
-                validate20EffectiveRepository( problems, repository, "pluginRepositories.pluginRepository", request );
+                validate20EffectiveRepository( problems, repository, "pluginRepositories.pluginRepository.", request );
             }
 
             DistributionManagement distMgmt = m.getDistributionManagement();
@@ -453,10 +453,10 @@ public class DefaultModelValidator
                                   "must not be specified.", distMgmt );
                 }
 
-                validate20EffectiveRepository( problems, distMgmt.getRepository(), "distributionManagement.repository",
+                validate20EffectiveRepository( problems, distMgmt.getRepository(), "distributionManagement.repository.",
                                                request );
                 validate20EffectiveRepository( problems, distMgmt.getSnapshotRepository(),
-                                               "distributionManagement.snapshotRepository", request );
+                                               "distributionManagement.snapshotRepository.", request );
             }
         }
     }
@@ -477,12 +477,12 @@ public class DefaultModelValidator
             {
                 if ( !"pom".equals( dependency.getType() ) )
                 {
-                    addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + ".type", key,
+                    addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + "type", key,
                                   "must be 'pom' to import the managed dependencies.", dependency );
                 }
                 else if ( StringUtils.isNotEmpty( dependency.getClassifier() ) )
                 {
-                    addViolation( problems, errOn30, Version.V20, prefix + prefix2 + ".classifier", key,
+                    addViolation( problems, errOn30, Version.V20, prefix + prefix2 + "classifier", key,
                                   "must be empty, imported POM cannot have a classifier.", dependency );
                 }
             }
@@ -491,7 +491,7 @@ public class DefaultModelValidator
 
                 if ( request.getValidationLevel() >= ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_1 )
                 {
-                    addViolation( problems, Severity.WARNING, Version.V31, prefix + prefix2 + ".scope", key,
+                    addViolation( problems, Severity.WARNING, Version.V31, prefix + prefix2 + "scope", key,
                                   "declares usage of deprecated 'system' scope ", dependency );
                 }
 
@@ -500,12 +500,12 @@ public class DefaultModelValidator
                 {
                     if ( !hasExpression( sysPath ) )
                     {
-                        addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + ".systemPath", key,
+                        addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + "systemPath", key,
                                       "should use a variable instead of a hard-coded path " + sysPath, dependency );
                     }
                     else if ( sysPath.contains( "${basedir}" ) || sysPath.contains( "${project.basedir}" ) )
                     {
-                        addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + ".systemPath", key,
+                        addViolation( problems, Severity.WARNING, Version.V20, prefix + prefix2 + "systemPath", key,
                                       "should not point at files within the project directory, " + sysPath
                                           + " will be unresolvable by dependent projects",
                                       dependency );
@@ -515,7 +515,7 @@ public class DefaultModelValidator
 
             if ( equals( "LATEST", dependency.getVersion() ) || equals( "RELEASE", dependency.getVersion() ) )
             {
-                addViolation( problems, Severity.WARNING, Version.BASE, prefix + prefix2 + ".version", key,
+                addViolation( problems, Severity.WARNING, Version.BASE, prefix + prefix2 + "version", key,
                               "is either LATEST or RELEASE (both of them are being deprecated)", dependency );
             }
 
@@ -535,7 +535,7 @@ public class DefaultModelValidator
                         + StringUtils.defaultString( dependency.getVersion(), "(?)" );
                 }
 
-                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + ".(groupId:artifactId:type:classifier)", null,
+                addViolation( problems, errOn31, Version.V20, prefix + prefix2 + "(groupId:artifactId:type:classifier)", null,
                               "must be unique: " + key + " -> " + msg, dependency );
             }
             else
@@ -564,8 +564,8 @@ public class DefaultModelValidator
                 // This means a module which is build has a dependency which has the same
                 // groupId, artifactId, version and classifier coordinates. This is in consequence
                 // a self reference or in other words a circular reference which can not being resolved.
-                addViolation( problems, Severity.FATAL, Version.V31, prefix + " " + key, key, "is referencing itself.",
-                              dependency );
+                addViolation( problems, Severity.FATAL, Version.V31, prefix + "[" + key + "]", key,
+                              "is referencing itself.", dependency );
 
             }
         }
@@ -622,7 +622,8 @@ public class DefaultModelValidator
             // This means a module which is build has a dependency which has the same
             // groupId, artifactId, version and classifier coordinates. This is in consequence
             // a self reference or in other words a circular reference which can not being resolved.
-            addViolation( problems, Severity.FATAL, Version.V31, prefix + " " + key, key, "is referencing itself.", d );
+            addViolation( problems, Severity.FATAL, Version.V31, prefix + "[" + key + "]", key,
+                          "is referencing itself.", d );
 
         }
 
@@ -748,7 +749,7 @@ public class DefaultModelValidator
 
         for ( Repository repository : repositories )
         {
-            validateStringNotEmpty( prefix, prefix2, ".id", problems, Severity.ERROR, Version.V20, repository.getId(),
+            validateStringNotEmpty( prefix, prefix2, "id", problems, Severity.ERROR, Version.V20, repository.getId(),
                                     null, repository );
 
             validateStringNotEmpty( prefix, prefix2, "[" + repository.getId() + "].url", problems, Severity.ERROR, Version.V20,
@@ -762,7 +763,7 @@ public class DefaultModelValidator
             {
                 Severity errOn30 = getSeverity( request, ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0 );
 
-                addViolation( problems, errOn30, Version.V20, prefix + prefix2 + ".id", null, "must be unique: "
+                addViolation( problems, errOn30, Version.V20, prefix + prefix2 + "id", null, "must be unique: "
                     + repository.getId() + " -> " + existing.getUrl() + " vs " + repository.getUrl(), repository );
             }
             else
@@ -779,12 +780,12 @@ public class DefaultModelValidator
         {
             Severity errOn31 = getSeverity( request, ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_1 );
 
-            validateBannedCharacters( prefix, ".id", problems, errOn31, Version.V20, repository.getId(), null,
+            validateBannedCharacters( prefix, "id", problems, errOn31, Version.V20, repository.getId(), null,
                                       repository, ILLEGAL_REPO_ID_CHARS );
 
             if ( "local".equals( repository.getId() ) )
             {
-                addViolation( problems, errOn31, Version.V20, prefix + ".id", null,
+                addViolation( problems, errOn31, Version.V20, prefix + "id", null,
                               "must not be 'local'" + ", this identifier is reserved for the local repository"
                                   + ", using it for other repositories will corrupt your repository metadata.",
                               repository );
@@ -792,7 +793,7 @@ public class DefaultModelValidator
 
             if ( "legacy".equals( repository.getLayout() ) )
             {
-                addViolation( problems, Severity.WARNING, Version.V20, prefix + ".layout", repository.getId(),
+                addViolation( problems, Severity.WARNING, Version.V20, prefix + "layout", repository.getId(),
                               "uses the unsupported value 'legacy', artifact resolution might fail.", repository );
             }
         }
@@ -805,10 +806,10 @@ public class DefaultModelValidator
 
         for ( Resource resource : resources )
         {
-            validateStringNotEmpty( prefix, ".directory", problems, Severity.ERROR, Version.V20,
+            validateStringNotEmpty( prefix, "directory", problems, Severity.ERROR, Version.V20,
                                     resource.getDirectory(), null, resource );
 
-            validateBoolean( prefix, ".filtering", problems, errOn30, Version.V20, resource.getFiltering(),
+            validateBoolean( prefix, "filtering", problems, errOn30, Version.V20, resource.getFiltering(),
                              resource.getDirectory(), resource );
         }
     }
@@ -984,7 +985,7 @@ public class DefaultModelValidator
             return false;
         }
 
-        if ( string.length() > 0 )
+        if ( !string.isEmpty() )
         {
             return true;
         }
