@@ -83,6 +83,7 @@ for (String os in runITsOses) {
         runITsTasks[stageId] = {
             node(jenkinsEnv.nodeSelection(osLabel)) {
                 stage("${stageLabel}") {
+                    echo "NODE_NAME = ${env.NODE_NAME}"
                     // on Windows, need a short path or we hit 256 character limit for paths
                     // using EXECUTOR_NUMBER guarantees that concurrent builds on same agent
                     // will not trample each other plus workaround for JENKINS-52657
@@ -96,22 +97,29 @@ for (String os in runITsOses) {
                             bat "if exist apache-maven-dist.zip del /q apache-maven-dist.zip"
                         }
                         unstash 'dist'
-                        withMaven(jdk: jdkName, maven: mvnName, mavenLocalRepo:"${WORK_DIR}/it-local-repo", options:[
-                            junitPublisher(ignoreAttachments: false)
-                        ]) {
-                            String cmd = "${runITscommand} -DmavenDistro=$WORK_DIR/apache-maven-dist.zip -Dmaven.test.failure.ignore=true"
-                            if (stageId.endsWith('-jdk7')) {
-                              // Java 7u80 has TLS 1.2 disabled by default: need to explicitly enable
-                              cmd = "${cmd} -Dhttps.protocols=TLSv1.2"
+                        try {
+                            withMaven(jdk: jdkName, maven: mvnName, mavenLocalRepo:"${WORK_DIR}/it-local-repo", options:[
+                                junitPublisher(ignoreAttachments: false)
+                            ]) {
+                                String cmd = "${runITscommand} -DmavenDistro=$WORK_DIR/apache-maven-dist.zip -Dmaven.test.failure.ignore=true"
+                                if (stageId.endsWith('-jdk7')) {
+                                    // Java 7u80 has TLS 1.2 disabled by default: need to explicitly enable
+                                    cmd = "${cmd} -Dhttps.protocols=TLSv1.2"
+                                }
+
+                                if (isUnix()) {
+                                    sh 'df -hT'
+                                    sh "${cmd}"
+                                } else {
+                                    bat 'wmic logicaldisk get size,freespace,caption'
+                                    bat "${cmd}"
+                                }
                             }
-                            
-                            if (isUnix()) {
-                                sh "${cmd}"
-                            } else {
-                                bat "${cmd}"
-                            }
+                        } finally {
+                            archiveDirs(stageId, ['core-it-suite-logs':'core-it-suite/target/test-classes',
+                                                  'core-it-suite-reports':'core-it-suite/target/surefire-reports'])
+                            deleteDir() // clean up after ourselves to reduce disk space
                         }
-                        deleteDir() // clean up after ourselves to reduce disk space
                     }
                 }
             }
@@ -154,4 +162,12 @@ parallel(runITsTasks)
     stage("Notifications") {
         jenkinsNotify()      
     }    
+}
+
+def archiveDirs(stageId, archives) {
+    archives.each { archivePrefix, pathToContent ->
+        if (fileExists(pathToContent)) {
+            zip(zipFile: "${archivePrefix}-${stageId}.zip", dir: pathToContent, archive: true)
+        }
+    }
 }

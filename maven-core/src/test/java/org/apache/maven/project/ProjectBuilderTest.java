@@ -19,7 +19,14 @@ package org.apache.maven.project;
  * under the License.
  */
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -154,7 +161,7 @@ public class ProjectBuilderTest
             FileUtils.fileWrite( parent, "UTF-8", parentContent );
             // re-build pom with modified parent
             ProjectBuildingResult result = projectBuilder.build( child, configuration );
-            assertTrue( result.getProject().getProperties().containsKey( "addedProperty" ) );
+            assertThat( result.getProject().getProperties(), hasKey( (Object) "addedProperty" ) );
         }
         finally
         {
@@ -228,7 +235,7 @@ public class ProjectBuilderTest
         }
         catch ( InvalidArtifactRTException iarte )
         {
-            assertTrue( iarte.getMessage().contains( "The groupId cannot be empty." ) );
+            assertThat( iarte.getMessage(), containsString( "The groupId cannot be empty." ) );
         }
 
         // multi projects build entry point
@@ -245,4 +252,80 @@ public class ProjectBuilderTest
         }
     }
 
+    public void testReadParentAndChildWithRegularVersionSetParentFile()
+        throws Exception
+    {
+        List<File> toRead = new ArrayList<>( 2 );
+        File parentPom = getProject( "MNG-6723" );
+        toRead.add( parentPom );
+        toRead.add( new File( parentPom.getParentFile(), "child/pom.xml" ) );
+        MavenSession mavenSession = createMavenSession( null );
+        ProjectBuildingRequest configuration = new DefaultProjectBuildingRequest();
+        configuration.setValidationLevel( ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL );
+        configuration.setRepositorySession( mavenSession.getRepositorySession() );
+        org.apache.maven.project.ProjectBuilder projectBuilder =
+            lookup( org.apache.maven.project.ProjectBuilder.class );
+
+        // read poms separately
+        boolean parentFileWasFoundOnChild = false;
+        for ( File file : toRead )
+        {
+            List<ProjectBuildingResult> results = projectBuilder.build( Collections.singletonList( file ), false, configuration );
+            assertResultShowNoError( results );
+            MavenProject project = findChildProject( results );
+            if ( project != null )
+            {
+                assertEquals( parentPom, project.getParentFile() );
+                parentFileWasFoundOnChild = true;
+            }
+        }
+        assertTrue( parentFileWasFoundOnChild );
+
+        // read projects together
+        List<ProjectBuildingResult> results = projectBuilder.build( toRead, false, configuration );
+        assertResultShowNoError( results );
+        assertEquals( parentPom, findChildProject( results ).getParentFile() );
+        Collections.reverse( toRead );
+        results = projectBuilder.build( toRead, false, configuration );
+        assertResultShowNoError( results );
+        assertEquals( parentPom, findChildProject( results ).getParentFile() );
+    }
+
+    private MavenProject findChildProject( List<ProjectBuildingResult> results )
+    {
+        for ( ProjectBuildingResult result : results )
+        {
+            if ( result.getPomFile().getParentFile().getName().equals( "child" ) )
+            {
+                return result.getProject();
+            }
+        }
+        return null;
+    }
+
+    private void assertResultShowNoError(List<ProjectBuildingResult> results)
+    {
+        for ( ProjectBuildingResult result : results )
+        {
+            assertThat( result.getProblems(), is( empty() ) );
+            assertNotNull( result.getProject() );
+        }
+    }
+
+    public void testBuildProperties()
+            throws Exception
+    {
+        File file = new File( getProject( "MNG-6716" ).getParentFile(), "project/pom.xml" );
+        MavenSession mavenSession = createMavenSession( null );
+        ProjectBuildingRequest configuration = new DefaultProjectBuildingRequest();
+        configuration.setRepositorySession( mavenSession.getRepositorySession() );
+        configuration.setResolveDependencies( true );
+        List<ProjectBuildingResult> result = projectBuilder.build( Collections.singletonList(file), true, configuration );
+        MavenProject project = result.get(0).getProject();
+        // verify a few typical parameters are not duplicated
+        assertEquals( 1, project.getTestCompileSourceRoots().size() );
+        assertEquals( 1, project.getCompileSourceRoots().size() );
+        assertEquals( 1, project.getMailingLists().size() );
+        assertEquals( 1, project.getResources().size() );
+    }
 }

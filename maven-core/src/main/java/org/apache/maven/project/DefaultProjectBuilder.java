@@ -684,7 +684,7 @@ public class DefaultProjectBuilder
                                              project.getPackaging() );
         project.setArtifact( projectArtifact );
 
-        if ( project.getFile() != null )
+        if ( project.getFile() != null && buildParentIfNotExisting ) // only set those on 2nd phase, ignore on 1st pass
         {
             Build build = project.getBuild();
             project.addScriptSourceRoot( build.getScriptSourceDirectory() );
@@ -976,6 +976,10 @@ public class DefaultProjectBuilder
                 }
             }
             project.setParent( parent );
+            if ( project.getParentFile() == null && parent != null )
+            {
+                project.setParentFile( parent.getFile() );
+            }
         }
     }
 
